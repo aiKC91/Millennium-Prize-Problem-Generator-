@@ -1,0 +1,20 @@
+elif "roundtable" in prompt_lower or "discussion" in prompt_lower or selected_shape == "Roundtable":
+    self.display_message("EternaFX: Running Roundtable Discussion...")
+    self.status_bar.config(text="Running Roundtable...")
+    try:
+        Settings.configure_logging()
+        participants_data = load_json_data('participants.json')
+        topics_data = load_json_data('topics.json')
+        validate_data(participants_data, ['name', 'description', 'expertise'])
+        validate_data(topics_data, ['title', 'description'])
+        participants = [AIInnovator(p['name'], p['description'], p['expertise']) for p in participants_data]
+        topics = [Topic(t['title'], t['description']) for t in topics_data]
+        roundtable = RoundtableDiscussion(participants, topics)
+        roundtable.conduct_discussion()
+        self.display_message("EternaFX: Roundtable Discussion Complete. See console output for full log.")
+
+    except (InvalidDataError, FileNotFoundError, json.JSONDecodeError) as e:
+        error_message = f"EternaFX: Roundtable Error: {e}. Please check console logs and data files (config.ini, participants.json, topics.json)."
+        self.display_message(error_message)
+        logging.error(error_message)
+        self.status_bar.config(text="Roundtable Error")
