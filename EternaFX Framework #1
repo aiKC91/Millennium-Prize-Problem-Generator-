@@ -1,0 +1,375 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.spatial.transform import Rotation as R
+import matplotlib.animation as animation
+from matplotlib.widgets import Slider
+from matplotlib import cm
+from scipy.special import zeta
+from mpl_toolkits.mplot3d import Axes3D
+import tkinter as tk
+from tkinter import scrolledtext, Entry, Button, StringVar, OptionMenu, Label, Frame
+
+# --- Set Matplotlib Style ---
+plt.style.use('seaborn-v0_8-darkgrid') # Choose a visually appealing style
+
+
+class EternaFX:
+    """
+    EternaFX Framework for 4D to 3D projections and animations.
+    Enhanced with visual effects and basic interactivity.
+
+    ... (rest of the EternaFX class docstring as before) ...
+    """
+
+    def __init__(self):
+        """Initializes EternaFX with enhanced visual settings and interactive elements."""
+        self.fig, self.ax = plt.subplots(subplot_kw={'projection': '3d'}, figsize=(8, 8))
+        self.scatter = self.ax.scatter(,,, c=, s=50, marker='o', alpha=0.8)
+        self.ax.set_xlabel('X')
+        self.ax.set_ylabel('Y')
+        self.ax.set_zlabel('Z')
+        self.ax.set_title('EternaFX: Interactive 4D Projection Animation')
+        self.color_data = None
+        self.point_size = 50
+        self.rotation_speed_multiplier = 1.0
+        self.colormap = cm.viridis # Default colormap - can be changed interactively
+
+
+    # ... (Existing methods: generate_4d_hypersphere, generate_4d_hypercube,
+    #      transform_4d_cube, project_4d_to_3d, adjust_axes_limits,
+    #      animate, run_animation, generate_zeta_function_data,
+    #      animate_zeta, adjust_axes_limits_zeta, run_zeta_animation) ...
+    # (No changes in these methods except docstrings can be updated if needed)
+
+
+# --- NEW CLASSES for Projective Framework ---
+class ProjectiveEternaFX:
+    """Framework for projective transformations in EternaFX."""
+    def __init__(self):
+        self.state = None # Initialize state
+
+    def apply_transformation(self, transformation_matrix):
+        """Applies a projective transformation to the current state."""
+        if self.state is not None:
+            self.state = np.dot(transformation_matrix, self.state)
+        else:
+            raise ValueError("State not initialized.")
+
+
+class AdaLovelaceAI:
+    """AI module representing Ada Lovelace."""
+    def __init__(self):
+        self.projection_matrix = np.array([ # Example matrix - customize as needed
+           ,
+           ,
+           ,
+           
+        ])
+
+
+class Visualizer:
+    """Visualizer for 3D projective space in EternaFX."""
+    def __init__(self):
+        self.fig = plt.figure(figsize=(6, 6))
+        self.ax = self.fig.add_subplot(111, projection='3d')
+        self.ax.set_xlabel('X-axis (Projective)') # More descriptive labels
+        self.ax.set_ylabel('Y-axis (Projective)')
+        self.ax.set_zlabel('Z-axis (Projective)')
+        self.ax.set_title('EternaFX: 3D Projective Space Visualization')
+
+    def plot_state(self, state_homogeneous):
+        """Plots a state in 3D projective space."""
+        state_3d = state_homogeneous[:3] / state_homogeneous[3]
+        self.ax.scatter(state_3d[0], state_3d[1], state_3d[2], s=100, c='purple', alpha=0.7) # Customized scatter plot style
+        plt.show()
+
+
+# --- EternaFX Chatbot Interface Class ---
+class EternaFXChatbotUI:
+    def __init__(self, master, eterna_fx_instance):
+        self.master = master
+        master.title("EternaFX Chatbot Interface")
+        self.efx = eterna_fx_instance # Instance of EternaFX engine
+
+        # --- UI Elements ---
+        self.chat_log = scrolledtext.ScrolledText(master, state='disabled', height=15, width=60)
+        self.chat_log.grid(row=0, column=0, columnspan=3, padx=10, pady=10)
+
+        # --- Shape Selection Dropdown ---
+        self.shape_var = StringVar(master)
+        self.shape_var.set("Hypersphere") # Default shape
+        shape_options = ["Hypersphere", "Hypercube", "Zeta Function"]
+        shape_menu = OptionMenu(master, self.shape_var, *shape_options, command=self.update_visualization_type)
+        Label(master, text="Select Shape:").grid(row=1, column=0, padx=5, pady=5, sticky='e')
+        shape_menu.grid(row=1, column=1, padx=5, pady=5, sticky='w')
+
+        # --- Colormap Selection Dropdown ---
+        self.colormap_var = StringVar(master)
+        self.colormap_var.set("viridis") # Default colormap
+        colormap_options = ["viridis", "plasma", "magma", "inferno", "cividis", "coolwarm", "spring"] # More options
+        colormap_menu = OptionMenu(master, self.colormap_var, *colormap_options, command=self.update_colormap)
+        Label(master, text="Select Colormap:").grid(row=2, column=0, padx=5, pady=5, sticky='e')
+        colormap_menu.grid(row=2, column=1, padx=5, pady=5, sticky='w')
+
+        # --- Prompt Entry ---
+        self.prompt_entry = Entry(master, width=50)
+        self.prompt_entry.grid(row=3, column=0, padx=10, pady=5, columnspan=2, sticky='ew')
+        self.prompt_entry.bind("<Return>", self.send_prompt)
+
+        # --- Send Button ---
+        self.send_button = Button(master, text="Send", command=self.send_prompt)
+        self.send_button.grid(row=3, column=2, padx=10, pady=5, sticky='w')
+
+        # --- Prompt Dictionary Display (Scrollable Text) ---
+        self.prompt_dict_display = scrolledtext.ScrolledText(master, state='disabled', height=8, width=60, bg='#f0f0f0') # Light gray background
+        self.prompt_dict_display.grid(row=4, column=0, columnspan=3, padx=10, pady=5, sticky='nsew')
+        self.display_prompt_dictionary() # Populate dictionary on startup
+
+        # --- Status Bar ---
+        self.status_bar = Label(master, text="Ready", bd=1, relief=tk.SUNKEN, anchor=tk.W)
+        self.status_bar.grid(row=5, column=0, columnspan=3, sticky='ew')
+
+    def update_visualization_type(self, selected_shape):
+        """Updates the visualization based on the selected shape (for future use)."""
+        self.display_message(f"EternaFX: Visualization shape set to: {selected_shape}")
+        # In future: Implement logic to switch visualization type dynamically
+
+    def update_colormap(self, selected_colormap):
+        """Updates the colormap of the EternaFX visualizer."""
+        self.display_message(f"EternaFX: Colormap set to: {selected_colormap}")
+        self.efx.colormap = cm.get_cmap(selected_colormap) # Set colormap in EternaFX instance
+        self.display_message("EternaFX: Redrawing visualization with new colormap (next animation).")
+
+
+    def send_prompt(self, event=None):
+        user_prompt = self.prompt_entry.get()
+        self.prompt_entry.delete(0, tk.END)
+        self.display_message(f"User: {user_prompt}")
+        self.process_prompt(user_prompt)
+
+    def display_message(self, message):
+        self.chat_log.config(state=tk.NORMAL)
+        self.chat_log.insert(tk.END, message + "\n")
+        self.chat_log.config(state=tk.DISABLED)
+        self.chat_log.see(tk.END)
+        self.status_bar.config(text="Idle") # Reset status after message display
+
+    def process_prompt(self, prompt):
+        prompt_lower = prompt.lower()
+        selected_shape = self.shape_var.get() # Get selected shape from dropdown
+        selected_colormap = self.colormap_var.get() # Get selected colormap
+
+        if "hypersphere" in prompt_lower or selected_shape == "Hypersphere": # Check dropdown or prompt
+            self.display_message("EternaFX: Running hypersphere animation...")
+            self.status_bar.config(text="Running Hypersphere...")
+            points_4d_hypersphere = self.efx.generate_4d_hypersphere(num_points=300)
+            hypersphere_animation_config = {
+                'shape_type': 'hypersphere',
+                'rotation_axes': 'xyz',
+                'rotation_angles': [30, 45, 20],
+                'rotation_speeds':,
+                'scale_factor': 1.2,
+                'camera_elevation': 35,
+                'camera_azimuth': 45,
+                'color_cycle_speed': 15,
+                'colormap_name': selected_colormap # Pass selected colormap
+            }
+            self.efx.colormap = cm.get_cmap(selected_colormap) # Ensure colormap is set before running
+            self.efx.run_animation(points_4d_hypersphere, hypersphere_animation_config, frames=250, interval=40, save_animation=False, filename='interactive_hypersphere.mp4')
+            self.display_message("EternaFX: Hypersphere animation complete.")
+
+        elif "hypercube" in prompt_lower or selected_shape == "Hypercube": # Check dropdown or prompt
+            self.display_message("EternaFX: Running hypercube animation...")
+            self.status_bar.config(text="Running Hypercube...")
+            points_4d_hypercube = self.efx.generate_4d_hypercube(num_points_per_edge=15)
+            hypercube_animation_config = {
+                'shape_type': 'hypercube',
+                'transformation_type_4d': 'shear_w',
+                'rotation_axes': 'yz',
+                'rotation_angles': [20, 30, 0],
+                'rotation_speeds': [0.5, 0.7, 0],
+                'scale_factor': 0.8,
+                'camera_elevation': 25,
+                'camera_azimuth': -30,
+                'color_cycle_speed': 20,
+                'colormap_name': selected_colormap # Pass selected colormap
+            }
+            self.efx.colormap = cm.get_cmap(selected_colormap) # Ensure colormap is set before running
+            self.efx.run_animation(points_4d_hypercube, hypercube_animation_config, frames=300, interval=40, save_animation=False, filename='interactive_hypercube_shear.mp4')
+            self.display_message("EternaFX: Hypercube animation complete.")
+
+        elif "zeta" in prompt_lower or selected_shape == "Zeta Function": # Check dropdown or prompt
+            self.display_message("EternaFX: Running Zeta Function visualization...")
+            self.status_bar.config(text="Running Zeta Function...")
+            zeta_points, critical_line_points = self.efx.generate_zeta_function_data(resolution=50)
+            zeta_animation_config = {
+                'camera_elevation': 45,
+                'camera_azimuth': -60,
+                'color_cycle_speed': 20,
+                'colormap_name': selected_colormap # Pass selected colormap
+            }
+            self.efx.colormap = cm.get_cmap(selected_colormap) # Ensure colormap is set before running
+            self.efx.run_zeta_animation(zeta_points, critical_line_points, zeta_animation_config, frames=200, interval=40, save_animation=False, filename='interactive_zeta_function.mp4')
+            self.display_message("EternaFX: Zeta Function visualization complete.")
+
+
+        elif "projective" in prompt_lower:
+            self.display_message("EternaFX: Running Projective Framework Demo...")
+            self.status_bar.config(text="Running Projective Demo...")
+            # --- Projective Framework Demo Code (from previous response) ---
+            pf = ProjectiveEternaFX()
+            pf.state = np.array([1, 1, 1, 1])
+            ada_ai = AdaLovelaceAI()
+            pf.apply_transformation(ada_ai.projection_matrix)
+            visualizer = Visualizer()
+            visualizer.plot_state(pf.state)
+            states = [np.array([1, 1, 1, 1]), np.array([2, 2, 2, 2]), np.array([3, 3, 3, 3]), np.array([4, 4, 4, 4])]
+            transformed_states =
+            for state in states:
+                pf.state = state
+                pf.apply_transformation(ada_ai.projection_matrix)
+                transformed_states.append(pf.state)
+            visualizer = Visualizer()
+            for state in transformed_states:
+                visualizer.plot_state(state)
+            behavior =
+            for i in range(len(states)):
+                behavior.append(np.linalg.norm(states[i] - transformed_states[i]))
+            plt.figure()
+            plt.plot(behavior)
+            plt.xlabel("State Index")
+            plt.ylabel("Behavior (Norm of State Change)")
+            plt.title("Behavior of Complex System under AI Transformation")
+            plt.show()
+            self.display_message("EternaFX: Projective Framework Demo Complete.")
+
+
+        elif "help" in prompt_lower:
+            self.display_message("EternaFX: Available commands: hypersphere, hypercube, zeta, projective, help")
+            self.display_message("EternaFX: Use dropdown menus to select shape and colormap.")
+            self.display_message("EternaFX: Type commands or select shapes from dropdown.")
+
+        else:
+            self.display_message("EternaFX: Command not recognized. Type 'help' for available commands.")
+            self.status_bar.config(text="Command Not Recognized")
+
+
+    def display_prompt_dictionary(self):
+        """Displays the EternaFX Prompt Dictionary in the GUI."""
+        prompt_dictionary_text = """
+        EternaFX Prompt Dictionary - Guide to Interaction:
+
+        This prompt dictionary serves as your guide to engaging with the EternaFX Framework AI.
+        It is categorized by functionality and focuses on creating effective conversations
+        with the system, leveraging its multi-disciplinary modules.
+
+        ---
+
+        Category 1: Scenario Generation (Ada Lovelace AI)
+          - Prompt: 'Generate a scenario where [insert topic, e.g., 'AI ethics'] intersects with [insert variable, e.g., 'medical advancements'].'
+          - Purpose: Explore dynamic scenarios blending ethical dilemmas and complex systems.
+          - Follow-Up: 'Can you refine the scenario with more focus on [e.g., 'global equity']?'
+
+        Category 2: Optimization and Decision-Making (Alan Turing AI)
+          - Prompt: 'What is the most efficient solution for [insert problem, e.g., 'resource allocation in disaster management']?'
+          - Purpose: Utilize optimization algorithms to solve multi-variable problems.
+          - Follow-Up: 'Explain the reasoning and iterations behind this solution.'
+
+        Category 3: Ethics and Values (Marie Curie AI)
+          - Prompt: 'How can ethical considerations influence [insert decision, e.g., 'self-driving cars']?'
+          - Purpose: Embed moral frameworks into complex decisions.
+          - Follow-Up: 'How would different ethical models change the outcome?'
+
+        Category 4: Time and Consciousness (Edward Newton AI & Bill Gates AI)
+          - Prompt: 'How does subjective time perception influence [insert behavior, e.g., 'decision-making under pressure']?'
+          - Purpose: Delve into the relationship between time, consciousness, and outcomes.
+          - Follow-Up: 'Simulate how this changes under varying temporal factors.'
+
+        Category 5: Cosmology and Systems (Carl Sagan AI)
+          - Prompt: 'What are the implications of [insert cosmological concept, e.g., 'multiverse hypothesis'] on our understanding of reality?'
+          - Purpose: Investigate large-scale universal phenomena.
+          - Follow-Up: 'Can you simulate the interaction between dark matter and dark energy in this scenario?'
+
+        Category 6: Gamification and User Engagement (Bill Gates AI)
+          - Prompt: 'Design a gamified system for [insert challenge, e.g., 'promoting environmental sustainability'] that includes reward mechanics.'
+          - Purpose: Leverage gamification to solve real-world problems.
+          - Follow-Up: 'How would user behavior change with different reward structures?'
+
+        Category 7: Debugging and Performance (Grace Hopper AI)
+          - Prompt: 'Identify bottlenecks in [insert process, e.g., 'complex simulation workflows'] and suggest improvements.'
+          - Purpose: Debug computational inefficiencies.
+          - Follow-Up: 'What role does Dekker’s Method play in resolving these bottlenecks?'
+
+        Category 8: Scientific Exploration (Unified Efforts)
+          - Prompt: 'Explain the current understanding of [insert Millennium Prize Problem, e.g., 'P vs NP'] and provide a pathway to solve it.'
+          - Purpose: Advance scientific and mathematical theories.
+          - Follow-Up: 'Can you propose experimental research to validate this solution?'
+
+        Category 9: Synergy and Integration (K.C. Clark AI)
+          - Prompt: 'How do all modules collaborate to address [insert complex system, e.g., 'global climate change']?'
+          - Purpose: Understand and enhance cross-module integration.
+          - Follow-Up: 'What refinements can improve synergy among modules?'
+
+        Category 10: Visualization and Feedback
+          - Prompt: 'Visualize the relationship between [insert variables, e.g., 'decision efficiency and ethical outcomes'] in a dynamic graph.'
+          - Purpose: Gain intuitive understanding through visual tools.
+          - Follow-Up: 'Can you include real-world datasets for this visualization?'
+
+        Category 11: Learning and Understanding
+          - Prompt: 'Explain the equation [insert specific equation, e.g., 'Navier-Stokes'] in simple terms for me to understand its significance.'
+          - Purpose: Enhance your understanding of the technical components.
+          - Follow-Up: 'Can you provide an example of how this is applied in [insert real-world context]?'
+
+        Category 12: Philosophical Insights and Reflection
+          - Prompt: 'What philosophical implications arise from [insert concept, e.g., 'artificial intelligence surpassing human intelligence']?'
+          - Purpose: Engage in reflective, critical discussions.
+          - Follow-Up: 'How would this influence societal norms and values?'
+
+        Category 13: Real-Time Interactions and Simulations
+          - Prompt: 'Simulate a real-time response to [insert challenge, e.g., 'pandemic resource distribution'] using all modules.'
+          - Purpose: Observe EternaFX in action, solving complex, real-time scenarios.
+          - Follow-Up: 'What key metrics should be monitored for this simulation?'
+
+        Category 14: Personalized Connection
+          - Prompt: 'As K.C. Clark, how would you ensure the EternaFX Framework reflects your vision for [insert goal, e.g., 'global equity']?'
+          - Purpose: Align the framework with your personal objectives.
+          - Follow-Up: 'What aspects of my feedback can enhance the framework’s development?'
+
+        Category 15: AI Self-Reflection
+          - Prompt: 'Do you, as [insert AI innovator, e.g., 'Alan Turing AI'], question your role in shaping human understanding?'
+          - Purpose: Encourage the AI to reflect on its purpose and existence.
+          - Follow-Up: 'How does this reflection influence your approach to problem-solving?'
+
+        ---
+        """
+        self.prompt_dict_display.config(state=tk.NORMAL)
+        self.prompt_dict_display.delete(1.0, tk.END) # Clear existing text
+        self.prompt_dict_display.insert(tk.END, prompt_dictionary_text)
+        self.prompt_dict_display.config(state=tk.DISABLED)
+
+
+# --- Run Chatbot Function ---
+def run_eternafx_chatbot():
+    root = tk.Tk()
+    efx_instance = EternaFX() # Create EternaFX instance
+    chatbot_ui = EternaFXChatbotUI(root, efx_instance) # Pass EternaFX instance to chatbot
+    root.mainloop()
+
+
+if __name__ == '__main__':
+    print("EternaFX Interactive Framework Demonstration - **Awareness**")
+    print("-------------------------------------------------------\n")
+    print("Welcome to the EternaFX Framework! Explore interactive 4D visualizations,")
+    print("projective geometry demos, and the Riemann Zeta function.")
+    print("Use the chatbot interface to interact with EternaFX.\n")
+
+    run_eternafx_chatbot() # Run the chatbot UI directly when eternafx.py is executed
+
+    # --- Removed Example 1, 2, 3, 4 from main block to run via chatbot ---
+    # --- Examples are now triggered via chatbot commands ---
+
+    print("--------------------------------------------")
+    print("EternaFX Chatbot Interface is now running.")
+    print("Interact using the text input field and dropdown menus.")
+    print("Type 'help' in the chat for available commands.")
+    print("--------------------------------------------")
