@@ -1,0 +1,61 @@
+import numpy as np
+import plotly.graph_objects as go
+from mpmath import zeta, zetazero
+
+# Fetch first 20 critical zeros
+critical_zeros = [zetazero(n) for n in range(1, 21)]
+zero_re = [0.5] * len(critical_zeros)
+zero_im = [z.imag for z in critical_zeros)
+zero_z = [0] * len(critical_zeros)  # |ζ(s)| = 0 at zeros
+
+# Define grid (30x30 for speed)
+real_values = np.linspace(0, 1, 30)
+imag_values = np.linspace(0, 50, 30)
+real_grid, imag_grid = np.meshgrid(real_values, imag_values)
+
+# Compute |ζ(s)| vectorized
+zeta_func = np.vectorize(
+    lambda σ, t: abs(zeta(complex(σ, t))),
+    otypes=[float]
+)
+zeta_values = zeta_func(real_grid, imag_grid)
+
+# Create plot
+fig = go.Figure(data=[go.Surface(
+    x=real_grid,
+    y=imag_grid,
+    z=zeta_values,
+    colorscale="Viridis",
+    opacity=0.7,
+    colorbar=dict(title="|ζ(s)|")  # Add colorbar
+)])
+
+# Add critical zeros with styled markers
+fig.add_trace(go.Scatter3d(
+    x=zero_re,
+    y=zero_im,
+    z=zero_z,
+    mode="markers",
+    marker=dict(
+        size=6,
+        color="red",
+        opacity=1,
+        line=dict(color="black", width=1)  # Add black outline
+    ),
+    name="Critical Zeros (First 20)"
+))
+
+# Adjust layout
+fig.update_layout(
+    title="Riemann Zeta Function Modulus |ζ(s)| with Critical Zeros",
+    scene=dict(
+        xaxis_title="Re(s)",
+        yaxis_title="Im(s)",
+        zaxis_title="|ζ(s)|",
+        zaxis=dict(range=[0, 5]),
+        camera=dict(eye=dict(x=1.5, y=1.5, z=0.8))  # Adjust view angle
+    ),
+    margin=dict(l=0, r=0, t=40, b=0)
+)
+
+fig.show()
